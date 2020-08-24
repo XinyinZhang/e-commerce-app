@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
+using Core.Interfaces;
 
 namespace API
 {
@@ -31,10 +32,13 @@ namespace API
         //available to other parts of our application, we add it inside this method
         public void ConfigureServices(IServiceCollection services)
         {
+            //lifetime: every HTTP request
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddControllers();
             //add StoreContext as a service to handle data transferring between application and DB
             services.AddDbContext<StoreContext>(x 
             => x.UseSqlite(_config.GetConnectionString("DefaultConnection")));
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

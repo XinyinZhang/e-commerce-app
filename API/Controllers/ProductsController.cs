@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
 using Core.Entities;
+using Core.Interfaces;
 
 namespace API.Controllers
 {
@@ -16,12 +17,12 @@ namespace API.Controllers
     //this controller class derive from ControllerBase class that
     //provides many properties and methods that are useful for handling HTTP requests
     {
-        private readonly StoreContext _context;
-        public ProductsController(StoreContext context)
-        //inject StoreContext into ProductController so that
-        //we can use the method within StoreContext
+        private readonly IProductRepository _repo;
+
+        public ProductsController(IProductRepository repo)
         {
-            _context = context;
+            _repo = repo;
+
 
         }
 
@@ -33,8 +34,8 @@ namespace API.Controllers
             //instead of waiting for lists to come back, it pass the request to a delegate, that
             //delegate is going to handle the request, in the meantime this thread can go and
             //handle other things; 
-        
-            var products = await _context.Products.ToListAsync();
+
+            var products = await _repo.GetProductsAsync();
             return Ok(products);
         }
 
@@ -42,7 +43,27 @@ namespace API.Controllers
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
 
-            return await _context.Products.FindAsync(id);
+            return await _repo.GetProductByIdAsync(id);
         }
+
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetProductBrands()
+        {
+            
+            var productBrands = await _repo.GetProductBrandsAsync();
+            return Ok(productBrands);
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<ProductType>>> GetProductTypes()
+        {
+            
+            var productTypes = await _repo.GetProductTypesAsync();
+            return Ok(productTypes);
+        }
+
+
+
+
     }
 }
