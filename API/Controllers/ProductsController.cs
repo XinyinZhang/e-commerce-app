@@ -10,13 +10,15 @@ using Core.Interfaces;
 using Core.Specifications;
 using API.Dtos;
 using AutoMapper;
+using API.Errors;
+using Microsoft.AspNetCore.Http;
 
 namespace API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")] //specify URL pattern for a controller
+   // [ApiController]
+   // [Route("api/[controller]")] //specify URL pattern for a controller
 
-    public class ProductsController : ControllerBase
+    public class ProductsController : BaseApiController
     //this controller class derive from ControllerBase class that
     //provides many properties and methods that are useful for handling HTTP requests
     {
@@ -70,10 +72,17 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        //tell Swagger what response type this method may return
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+
         public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
         {
             var spec = new ProductsWithTypesAndBrandsSpecification(id);
             var product = await _productsRepo.GetEntityWithSpec(spec);
+            if(product == null){
+                return NotFound(new ApiResponse(404));
+            }
             return _mapper.Map<Product, ProductToReturnDto>(product);
         }
 

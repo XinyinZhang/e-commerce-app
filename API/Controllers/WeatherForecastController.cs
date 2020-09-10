@@ -11,6 +11,9 @@ namespace API.Controllers
     [Route("[controller]")] //specifies how a client is able to send a 
                             //request to the controller, the request will hit
                             //this controller
+    //tell swagger we don't want this controller to be added as an endpoint that
+    //our client would consume --> ignore this controller
+    [ApiExplorerSettings(IgnoreApi = true)]                        
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

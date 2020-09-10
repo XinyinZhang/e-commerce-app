@@ -1,20 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Data;
-using Core.Interfaces;
 using AutoMapper;
 using API.Helpers;
+using API.Middleware;
+using API.Extensions;
 
 namespace API
 {
@@ -34,34 +27,45 @@ namespace API
         //available to other parts of our application, we add it inside this method
         public void ConfigureServices(IServiceCollection services)
         {
-            //lifetime: every HTTP request
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+            
             services.AddControllers();
             //add StoreContext as a service to handle data transferring between application and DB
             services.AddDbContext<StoreContext>(x 
             => x.UseSqlite(_config.GetConnectionString("DefaultConnection")));
+
+            services.AddApplicationServices();
             //add AutoMapper service
             services.AddAutoMapper(typeof(MappingProfiles));
-            
+            services.AddSwaggerDocumentation();
+          
+ 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // This method gets called by the runtime. 
+        //Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            //use our own exception middleware
+            app.UseMiddleware<ExceptionMiddleware>();
+
+            //when a request comes to API server but we don't have an endpoint for this
+            //request(404 error is generated),the statusCode middleware catches it, and
+            //re-executes the pipeline using /error/404 
+            app.UseStatusCodePagesWithReExecute("/errors/{0}");
+            //{0}: a placeholder which will be replaced with the actual code integer(e.g: 404)
+            //when the pipeline is re-executed
 
             app.UseHttpsRedirection(); //redirect HTTP requests to HTTPS
 
             app.UseRouting();
 
-            app.UseStaticFiles(); //set configuration to send images
+            app.UseStaticFiles(); //configure a middleware to enable static file serving
+                                 //(image sending) for this pipeline
 
-            app.UseAuthorization();
-
+            app.UseAuthorization(); //configure a middleware that will be able to
+                                    //authenticate and authorize the incoming request
+            
+            app.UseSwaggerDocumentation();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
