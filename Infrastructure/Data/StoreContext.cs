@@ -1,4 +1,5 @@
 
+using System.Linq;
 using System.Reflection;
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,25 @@ namespace Infrastructure.Data
             //ApplyConfigurationFromAssembly scan the given assembly  for all types that implement IEntityTypeConfiguration, 
             //and registers each one automatically. 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            //check if we are working with SQLite database
+            if(Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                //convert all decimal type to double type, since Sqlite database cannot 
+                // order by expression of type decimal
+                foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+                {
+                    var properties = entityType.ClrType.GetProperties()
+                    .Where(p => p.PropertyType == typeof(decimal));
+                    foreach (var property in properties)
+                    {
+                        modelBuilder.Entity(entityType.Name).Property(property.Name)
+                        .HasConversion<double>();
+                    }
+                }
+
+            }
+
 
         }
     }

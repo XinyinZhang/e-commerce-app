@@ -37,6 +37,16 @@ namespace API
             //add AutoMapper service
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddSwaggerDocumentation();
+            //enable CORS so that it can be used by the application
+            services.AddCors(opt => 
+            {
+                opt.AddPolicy("CorsPolicy", policy => 
+                {
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200");
+                    //client的localhost: port 4200
+                    //this will allow any methods/headers comes from localhost:4200 to access the data
+                });
+            });
           
  
         }
@@ -61,6 +71,8 @@ namespace API
 
             app.UseStaticFiles(); //configure a middleware to enable static file serving
                                  //(image sending) for this pipeline
+
+            app.UseCors("CorsPolicy");   //configure a middleware to enable Cors policy
 
             app.UseAuthorization(); //configure a middleware that will be able to
                                     //authenticate and authorize the incoming request

@@ -32,6 +32,11 @@ namespace Infrastructure.Data
             return await ApplySpecification(spec).ToListAsync();
         }
 
+        public async Task<int> CountAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).CountAsync();
+        }
+
         public async Task<T> GetEntityWithSpec(ISpecification<T> spec)
         {
             return await ApplySpecification(spec).FirstOrDefaultAsync();
@@ -43,14 +48,14 @@ namespace Infrastructure.Data
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
             return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
-            //spec contains 2 fields
+            //spec contains 3 fields
             //field 1: a Criteria expression: x => x.Id == id
             //field 2: a list of expression
                 // {x => x.ProductBrand, x => x.ProductType}
+            //field 3: Orderby (expression)    
         }
 
-
-
+        
     }
 
 }

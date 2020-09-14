@@ -19,7 +19,23 @@ namespace Infrastructure.Data
             //evaluate what's inside the ISpecification
             if (spec.Criteria != null){
                 query = query.Where(spec.Criteria); //ex: p => p.ProductTypeId == id
+                
             }
+            if(spec.OrderBy != null){ //ex: OrderBy = {x => x.Name}
+                query = query.OrderBy(spec.OrderBy);
+            }
+            if(spec.OrderByDescending != null){
+                query = query.OrderByDescending(spec.OrderByDescending);
+            }
+
+            //check if the client want to apply paging
+            if(spec.IsPagingEnabled)
+            {
+                //skip number = spec.Skip elements
+                //take number = spec.Take elements
+                query = query.Skip(spec.Skip).Take(spec.Take);
+            }
+
 
             //accumulate all includes into an expression
              // {x => x.ProductBrand, x => x.ProductType}

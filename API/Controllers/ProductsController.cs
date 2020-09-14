@@ -12,6 +12,7 @@ using API.Dtos;
 using AutoMapper;
 using API.Errors;
 using Microsoft.AspNetCore.Http;
+using API.Helpers;
 
 namespace API.Controllers
 {
@@ -45,16 +46,24 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts()
+        public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
+            [FromQuery]ProductSpecParams productParams)
+                        //int?: option para
+                        
         {
+
             //make it async so that it will not block
             //the threads that is running on until the result is grabbed from database
             //instead of waiting for lists to come back, it pass the request to a delegate, that
             //delegate is going to handle the request, in the meantime this thread can go and
             //handle other things; 
 
-            var spec = new ProductsWithTypesAndBrandsSpecification();
+            var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
+            var countSpec = new ProductWithFiltersForCountSpecification(productParams);
+            var totalItems = await _productsRepo.CountAsync(countSpec);
             var products = await _productsRepo.ListAsync(spec);
+            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+
             //shape the products in memory to the what we want the client to see
             // var productDTOList = products.Select(product => new ProductToReturnDto
             // {
@@ -67,8 +76,7 @@ namespace API.Controllers
             //     ProductType = product.ProductType.Name
             // });
             
-            return Ok(_mapper.Map<IReadOnlyList<Product>, 
-            IReadOnlyList<ProductToReturnDto>>(products));
+            return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
 
         [HttpGet("{id}")]
