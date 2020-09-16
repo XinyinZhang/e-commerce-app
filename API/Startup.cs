@@ -43,7 +43,7 @@ namespace API
                 opt.AddPolicy("CorsPolicy", policy => 
                 {
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200");
-                    //client的localhost: port 4200
+                    //Angular client的localhost: port 4200
                     //this will allow any methods/headers comes from localhost:4200 to access the data
                 });
             });
