@@ -5,6 +5,7 @@ import { IBrand } from '../shared/models/brand';
 import { IType } from '../shared/models/productType';
 import {map} from 'rxjs/operators';
 import { ShopParams } from '../shared/models/shopParams';
+import { IProduct } from '../shared/models/product';
 
 @Injectable({
   providedIn: 'root'// By default, Angular的CLI
@@ -54,6 +55,11 @@ export class ShopService {
   // tslint:disable-next-line: typedef
   getTypes(){
     return this.http.get<IType[]>(this.baseUrl + 'products/types');
+  }
+
+  // tslint:disable-next-line: typedef
+  getProduct(id: number){
+    return this.http.get<IProduct>(this.baseUrl + 'products/' + id);
   }
 
 }
