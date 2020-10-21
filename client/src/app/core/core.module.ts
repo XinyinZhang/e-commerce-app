@@ -6,6 +6,8 @@ import { TestErrorComponent } from './test-error/test-error.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ServerErrorComponent } from './server-error/server-error.component';
 import {ToastrModule} from 'ngx-toastr';
+import {BreadcrumbModule} from 'xng-breadcrumb';
+import { SectionHeaderComponent } from './section-header/section-header.component';
 
 // contains all singleton component, ex: navBar
 // singleton: a class that allows only a single instance of itself to be created
@@ -13,10 +15,11 @@ import {ToastrModule} from 'ngx-toastr';
 
 
 @NgModule({
-  declarations: [NavBarComponent, TestErrorComponent, NotFoundComponent, ServerErrorComponent],
+  declarations: [NavBarComponent, TestErrorComponent, NotFoundComponent, ServerErrorComponent, SectionHeaderComponent],
   imports: [
     CommonModule,
     RouterModule,
+    BreadcrumbModule,
     ToastrModule.forRoot({
       // where do we want the toast to appear
       positionClass: 'toast-bottom-right',
@@ -24,6 +27,9 @@ import {ToastrModule} from 'ngx-toastr';
       preventDuplicates: true
     })
   ],
-  exports: [NavBarComponent]
+  exports: [
+    NavBarComponent,
+    SectionHeaderComponent
+  ]
 })
 export class CoreModule { }

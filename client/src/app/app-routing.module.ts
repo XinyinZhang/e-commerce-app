@@ -8,14 +8,14 @@ import { ServerErrorComponent } from './core/server-error/server-error.component
 import { NotFoundComponent } from './core/not-found/not-found.component';
 
 const routes: Routes = [
-  {path: '', component: HomeComponent}, // home route: localhost:4200(no extra string)
-  {path: 'test-error', component: TestErrorComponent},
-  {path: 'server-error', component: ServerErrorComponent},
-  {path: 'not-found', component: NotFoundComponent},
+  {path: '', component: HomeComponent, data: {breadcrumb: 'Home'}}, // home route: localhost:4200(no extra string)
+  {path: 'test-error', component: TestErrorComponent, data: {breadcrumb: 'Test Errors'}},
+  {path: 'server-error', component: ServerErrorComponent, data: {breadcrumb: 'Server Error'}},
+  {path: 'not-found', component: NotFoundComponent, data: {breadcrumb: 'Not Found'}},
   // lazy loading: our shop module will only be activated and loaded when we access the shop path
   {path: 'shop', loadChildren: () => import('./shop/shop.module')
-.then(mod => mod.ShopModule)},
-  {path: '**', redirectTo: '', pathMatch: 'full'} // when somebody types a bad URL,
+.then(mod => mod.ShopModule), data: {breadcrumb: 'Shop'}},
+  {path: '**', redirectTo: 'not-found', pathMatch: 'full'} // when somebody types a bad URL,
   // redirect them to home page
 
 ];

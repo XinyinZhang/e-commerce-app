@@ -2,7 +2,7 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/c
 import { Observable, throwError } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
-import { catchError } from 'rxjs/operators';
+import { catchError, delay } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 // goal： catch any error comming back from API, and handle each error
 
@@ -12,10 +12,11 @@ export class ErrorInterceptor implements HttpInterceptor{
     // inject the router, that will give us access to navigation functionality
     // so that we'll be able to redirect the user to particular ErrorComponent page
     constructor(private router: Router, private toastr: ToastrService) {}
-    // next: http response that's comming back
     // goal: we want to catch any error response coming back from API
     // this will give us opportunity to do sth with the particular errors
 
+    // HttpInterceptor receives a request: req as a parameter and a handler for passing
+    // the request down to the next interceptor/item in pipeline
     // Note: in order to make use of this HTTP interceptor, we need to add this as
     // a provider inside our app module component
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

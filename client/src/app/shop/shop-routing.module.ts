@@ -8,7 +8,8 @@ const routes: Routes = [
   // already set tp shop
    {path: '', component: ShopComponent}, // /shop
   // route to a specific product with productId: id
-  {path: ':id', component: ProductDetailsComponent}, // shop/id
+  {path: ':id', component: ProductDetailsComponent,
+  data: {breadcrumb: {alias: 'productDetails'}}}, // shop/id
 
 ];
 

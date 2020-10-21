@@ -11,8 +11,8 @@ import { ShopParams } from '../shared/models/shopParams';
   styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit {
-  // search is a static element that's not relying on any dynamic activity
-  @ViewChild('search', {static: true}) searchTerm: ElementRef;
+
+  @ViewChild('search', {static: false}) searchTerm: ElementRef;
   products: IProduct[];
   brands: IBrand[];
   types: IType[];

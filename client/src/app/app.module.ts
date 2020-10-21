@@ -9,6 +9,8 @@ import { CoreModule } from './core/core.module';
 import { ShopModule } from './shop/shop.module';
 import { HomeModule } from './home/home.module';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import {NgxSpinnerModule} from 'ngx-spinner';
+import { LoadingInterceptor } from './core/interceptors/loading.interceptors';
 
 @NgModule({
   declarations: [
@@ -21,14 +23,16 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
     HttpClientModule,
     CoreModule,
     // ShopModule,
-    HomeModule
+    HomeModule,
+    NgxSpinnerModule
     ],
   providers: [
     // Angular comes with its own interceptor, we are adding this to an
     // array of HTTP interceptors, even though we only create one of our own;
     // we also set multi to true, to specify the ErrorInterceptor is not the only
     // in list, its got the one that come with angular as well
-    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true}
+    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true}
   ],
   bootstrap: [AppComponent]
 })

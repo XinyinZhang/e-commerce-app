@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { PaginationModule} from 'ngx-bootstrap/pagination';
+import { CarouselModule} from 'ngx-bootstrap/carousel';
 import { PagingHeaderComponent } from './components/paging-header/paging-header.component';
 import { PagerComponent } from './components/pager/pager.component';
 
@@ -11,12 +12,14 @@ import { PagerComponent } from './components/pager/pager.component';
   declarations: [PagingHeaderComponent, PagerComponent],
   imports: [
     CommonModule,
-    PaginationModule.forRoot()
+    PaginationModule.forRoot(),
+    CarouselModule.forRoot()
   ],
   exports: [
     PaginationModule,
     PagingHeaderComponent,
-    PagerComponent
+    PagerComponent,
+  CarouselModule
   ] // make all components/functionalities in shared Module available outside so that
   // any featureModule that need the shared functionality (ex: shopModule) can use them
   // note that: any featureModule should imports the sharedModule first if they want to
