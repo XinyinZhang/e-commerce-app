@@ -15,6 +15,10 @@ const routes: Routes = [
   // lazy loading: our shop module will only be activated and loaded when we access the shop path
   {path: 'shop', loadChildren: () => import('./shop/shop.module')
 .then(mod => mod.ShopModule), data: {breadcrumb: 'Shop'}},
+  {path: 'basket', loadChildren: () => import('./basket/basket.module')
+.then(mod => mod.BasketModule), data: {breadcrumb: 'Basket'}},
+{path: 'checkout', loadChildren: () => import('./checkout/checkout.module')
+.then(mod => mod.CheckoutModule), data: {breadcrumb: 'Checkout'}},
   {path: '**', redirectTo: 'not-found', pathMatch: 'full'} // when somebody types a bad URL,
   // redirect them to home page
 

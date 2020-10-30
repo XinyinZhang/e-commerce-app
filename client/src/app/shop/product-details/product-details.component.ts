@@ -3,6 +3,7 @@ import { ShopService } from '../shop.service';
 import { IProduct } from 'src/app/shared/models/product';
 import { ActivatedRoute } from '@angular/router';
 import { BreadcrumbService } from 'xng-breadcrumb';
+import { BasketService } from 'src/app/basket/basket.service';
 
 @Component({
   selector: 'app-product-details',
@@ -11,15 +12,28 @@ import { BreadcrumbService } from 'xng-breadcrumb';
 })
 export class ProductDetailsComponent implements OnInit {
   product: IProduct;
+  quantity = 1;
   // inject the shop service to be able to use methods inside it
   constructor(private shopService: ShopService, private activateRoute: ActivatedRoute,
-              private bcService: BreadcrumbService) {
+              private bcService: BreadcrumbService, private basketService: BasketService) {
                  this.bcService.set('@productDetails', 'Loading...');
     }
 
   ngOnInit(): void{
     this.loadProduct();
   }
+  addItemToBasket(): void{
+    this.basketService.addItemToBasket(this.product, this.quantity);
+  }
+  incrementQuantity(): void{
+    this.quantity++;
+  }
+  decrementQuantity(): void{
+    if (this.quantity > 1){
+      this.quantity--;
+    }
+  }
+
   loadProduct(): void{
     this.shopService.getProduct(+this.activateRoute.snapshot.paramMap.get('id')).subscribe(product => {
       this.product = product;
