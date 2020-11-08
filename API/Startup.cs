@@ -9,6 +9,8 @@ using API.Helpers;
 using API.Middleware;
 using API.Extensions;
 using StackExchange.Redis;
+using Infrastructure.Identity;
+
 namespace API
 {
     public class Startup
@@ -32,12 +34,22 @@ namespace API
             //add StoreContext as a service to handle data transferring between application and DB
             services.AddDbContext<StoreContext>(x 
             => x.UseSqlite(_config.GetConnectionString("DefaultConnection")));
+            // add AppIdentityDbContext to handle identity related requests
+            services.AddDbContext<AppIdentityDbContext>(x =>
+            {
+                // we create a new database to store IdentityDbContext
+                x.UseSqlite(_config.GetConnectionString("IdentityConnection")); // also add this connection
+                // string to appsettings.Development.json
+            });
+
             services.AddSingleton<IConnectionMultiplexer>(c => {
                 var configuration = ConfigurationOptions.Parse(_config.GetConnectionString("Redis"), true);
                 return ConnectionMultiplexer.Connect(configuration);
             });
 
             services.AddApplicationServices();
+            // add identity services to be able to use UserManager and other related services
+            services.AddIdentityServices(_config);
             //add AutoMapper service
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddSwaggerDocumentation();
@@ -78,8 +90,9 @@ namespace API
 
             app.UseCors("CorsPolicy");   //configure a middleware to enable Cors policy
 
+            app.UseAuthentication(); // configure a middleware to authenticate the user
             app.UseAuthorization(); //configure a middleware that will be able to
-                                    //authenticate and authorize the incoming request
+                                    //authorize the incoming request
             
             app.UseSwaggerDocumentation();
             app.UseEndpoints(endpoints =>

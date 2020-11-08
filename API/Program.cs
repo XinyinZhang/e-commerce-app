@@ -1,7 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using Core.Entities.Identity;
 using Infrastructure.Data;
+using Infrastructure.Identity;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,6 +42,16 @@ namespace API
                     await StoreContextSeed.SeedAsync(context, loggerFactory);
 
 
+                    // seed the identity data into database once the application starts
+                    // 1. get a userManager service
+                    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+                    var identityContext = services.GetRequiredService<AppIdentityDbContext>();
+                    // 2. asynchronously将identityContext里的任何migrations apply到
+                    // database中，如果database不存在，create an identity database
+                    await identityContext.Database.MigrateAsync();
+                    // seed the identity data into database once the application starts,
+                    // pass in 新create好的userManager to help store the data into database
+                    await AppIdentityDbContextSeed.SeedUsersAsync(userManager);
                 }
                 catch(Exception ex)
                 {
