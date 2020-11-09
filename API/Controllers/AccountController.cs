@@ -60,6 +60,9 @@ namespace API.Controllers
         var user = await _userManager
         .FindUserByClaimsPrincipleWithAddressAsync(HttpContext.User);
         return _mapper.Map<Address, AddressDto>(user.Address);
+        // why not return user.Address directly?
+        // Address contains appUser, appUser: user contains Address --> causes cycle
+        // so we need to define an AddressDto, remove the appUser field
     }
     // update user Address
     [Authorize]
@@ -99,6 +102,12 @@ namespace API.Controllers
     // register a user
     public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
+        // make sure the email is not already in used
+        if (CheckEmailExistsAsync(registerDto.Email).Result.Value)
+        {
+            return new BadRequestObjectResult
+            (new ApiValidationErrorResponse{Errors = new []{"Email address is in use"}});
+        }
         // convert registerDto type to AppUser type and
         // store new user's data into identity database
         var user = new AppUser

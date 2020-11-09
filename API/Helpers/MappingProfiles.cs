@@ -18,6 +18,8 @@ namespace API.Helpers
                 option => option.MapFrom<ProductUrlResolver>());
             CreateMap<Address, AddressDto>();
             CreateMap<Address, AddressDto>().ReverseMap();
+            CreateMap<CustomerBasketDto, CustomerBasket>();
+            CreateMap<BasketItemDto, BasketItem>();
             
         }
     }
