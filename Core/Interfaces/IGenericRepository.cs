@@ -14,5 +14,8 @@ namespace Core.Interfaces
          Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
          //count the number of items left after the filters/specifications have been applied
          Task<int> CountAsync(ISpecification<T> spec);
+         void Add(T entity);
+         void Update(T entity);
+         void Delete(T entity);
     }
 }

@@ -55,7 +55,23 @@ namespace Infrastructure.Data
             //field 3: Orderby (expression)    
         }
 
-        
+        public void Add(T entity)
+        {
+            // only add to context, will only be added into the
+            // database when DbContext.SaveChanges is called
+            _context.Set<T>().Add(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+        }
+
+        public void Delete(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+        }
     }
 
 }
