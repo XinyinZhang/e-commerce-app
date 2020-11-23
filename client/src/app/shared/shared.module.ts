@@ -8,18 +8,25 @@ import { OrderTotalsComponent } from './components/order-totals/order-totals.com
 import { ReactiveFormsModule } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TextInputComponent } from './components/text-input/text-input.component';
+import {CdkStepperModule} from '@angular/cdk/stepper';
+import { StepperComponent } from './components/stepper/stepper.component';
+import { BasketSummaryComponent } from './components/basket-summary/basket-summary.component';
+import { RouterModule } from '@angular/router';
 
 // Note: for anything we add to sharedModule, we also need to export
 // because we're gonna to import the sharedModule into any feature modules
 // that need the functionalities provided inside this sharedModule
 @NgModule({
-  declarations: [PagingHeaderComponent, PagerComponent, OrderTotalsComponent, TextInputComponent],
+  declarations: [PagingHeaderComponent, PagerComponent, OrderTotalsComponent,
+    TextInputComponent, StepperComponent, BasketSummaryComponent],
   imports: [
     CommonModule,
     PaginationModule.forRoot(),
     CarouselModule.forRoot(),
     BsDropdownModule.forRoot(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CdkStepperModule,
+    RouterModule
   ],
   exports: [
     PaginationModule,
@@ -27,9 +34,12 @@ import { TextInputComponent } from './components/text-input/text-input.component
     PagerComponent,
     CarouselModule,
     OrderTotalsComponent,
+    ReactiveFormsModule, // make it available to use by account module
     BsDropdownModule,
     TextInputComponent,
-    ReactiveFormsModule // make it available to use by account module
+    CdkStepperModule,
+    StepperComponent,
+    BasketSummaryComponent
   ] // make all components/functionalities in shared Module available outside so that
   // any featureModule that need the shared functionality (ex: shopModule) can use them
   // note that: any featureModule should imports the sharedModule first if they want to

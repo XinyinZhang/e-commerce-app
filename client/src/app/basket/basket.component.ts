@@ -15,7 +15,7 @@ export class BasketComponent implements OnInit {
 
   ngOnInit(): void {
     this.basket$ = this.basketService.basket$;
-  }
+}
   incrementItemQuantity(item: IBasketItem): void{
     this.basketService.incrementItemQuantity(item);
   }
@@ -25,5 +25,4 @@ export class BasketComponent implements OnInit {
   removeBasketItem(item: IBasketItem): void{
     this.basketService.removeItemFromBasket(item);
   }
-
 }

@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { IBasket, IBasketItem, Basket, IBasketTotals } from '../shared/models/basket';
 import { map } from 'rxjs/operators';
 import { IProduct } from '../shared/models/product';
+import { IDeliveryMethod } from '../shared/models/deliveryMethod';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,14 @@ export class BasketService {
 
   private basketTotalSource = new BehaviorSubject<IBasketTotals>(null);
   basketTotal$ = this.basketTotalSource.asObservable();
+  shipping = 0;
   constructor(private http: HttpClient) { }
+
+  setShippingPrice(deliveryMethod: IDeliveryMethod): void
+  {
+    this.shipping = deliveryMethod.price;
+    this.calculateTotals();
+  }
 
   // tslint:disable-next-line: typedef
   getBasket(id: string){
@@ -103,6 +111,16 @@ export class BasketService {
     });
   }
 
+  // delete basket locally (will be called once an order is successfully created)
+  // idea: once an order is successfully created on server side, server will delete the
+  // basket from their database, we also want to delete this basket from local storage
+  deleteLocalBasket(id: string): void
+  {
+    this.basketSource.next(null);
+    this.basketTotalSource.next(null);
+    localStorage.removeItem('basket_id');
+  }
+
   private addOrUpdateItem(items: IBasketItem[], ItemToAdd: IBasketItem, quantity: number): IBasketItem[] {
     // check if the item is already in items[], if no then push item, otherwise increase
     // the quantity of the item
@@ -140,7 +158,7 @@ export class BasketService {
   // tslint:disable-next-line: typedef
   private calculateTotals() {
     const basket = this.getCurrentBasketValue();
-    const shipping = 0;
+    const shipping = this.shipping;
     const subtotal = basket.items.reduce((a, b) => (b.price * b.quantity) + a, 0);
     const total = subtotal + shipping;
     this.basketTotalSource.next({shipping, total, subtotal});
