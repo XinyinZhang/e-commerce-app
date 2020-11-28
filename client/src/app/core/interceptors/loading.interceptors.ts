@@ -10,10 +10,14 @@ export class LoadingInterceptor implements HttpInterceptor {
     // Note: in order to make use of this interceptor, we need to add this as
     // a provider inside our app module component
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        if (req.method === 'POST' && req.url.includes('orders')) {
+            return next.handle(req);
+        }
         if (!req.url.includes('emailexists')) {
             // 如果是checkEmailTaken case的延时，turn off the loading spinner
-            this.busyServices.busy();
+            return next.handle(req);
         }
+        this.busyServices.busy();
         // this.busyServices.busy();
         return next.handle(req).pipe(
             delay(1000),

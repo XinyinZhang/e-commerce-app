@@ -12,11 +12,13 @@ namespace Infrastructure.Services
     {
         private readonly IBasketRepository _basketRepo;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPaymentService _paymentService;
 
-        public OrderService(IBasketRepository basketRepo, IUnitOfWork unitOfWork)
+        public OrderService(IBasketRepository basketRepo, IUnitOfWork unitOfWork, IPaymentService paymentService)
         {
             _basketRepo = basketRepo;
             _unitOfWork = unitOfWork;
+            _paymentService = paymentService;
         }
 
         public async Task<Order> CreateOrderAsync(string buyerEmail, int deliveryMethodId, 
@@ -34,7 +36,8 @@ namespace Infrastructure.Services
                 // why need this? why not create the orderItem based on product
                 // our product may change(either price/name..), 如果根据product create
                 // orderItem，那么product changes时orderItem也被迫变化；we don't want the order
-                // to change(don't want relation between product and order)
+                // to change, client付的钱应该是product当时的价钱，而不是change以后的价钱
+                //(don't want relation between product and order)
                 // so we need another object that record a snapshot of product at this time
                 // and let orderItem has relation with this object
                 var itemOrderedSnapShot = new ProductItemOrdered(productItem.Id, 
@@ -47,9 +50,24 @@ namespace Infrastructure.Services
 
             // 4. calculate subtotal
             var subtotal = items.Sum(item => item.Price * item.Quantity);
+            // check to see if we already have this order inside database(happens when payment fail
+            // and order succeed)
+            var spec = new OrderByPaymentIntentIdSpecification(basket.PaymentIntentId);
+            var existingOrder = await _unitOfWork.Repository<Order>().GetEntityWithSpec(spec);
+            // if we do have an existingOrder, means client is repeating their submit order action
+            // (because payment to Stripe failed on their first attempt), we will delete the order completely
+            // and create a new order
+            if (existingOrder != null) {
+                _unitOfWork.Repository<Order>().Delete(existingOrder);
+                // update payment intent with the current basket contents
+                await _paymentService.CreateOrUpdatePaymentIntent(basket.PaymentIntentId);
+
+            }
+
+
             // 5. create order
             var order = new Order(items, buyerEmail, shippingAddress, 
-            deliveryMethod, subtotal);
+            deliveryMethod, subtotal, basket.PaymentIntentId);
             _unitOfWork.Repository<Order>().Add(order); // nothing save to the database at this point
             // 6. save to db
             var result = await _unitOfWork.Complete(); // actually save order to database
@@ -57,7 +75,8 @@ namespace Infrastructure.Services
             // the error message
 
             // 7. if order is saved successfully, we can delete the basket now
-            await _basketRepo.DeleteBasketAsync(basketId);
+            // await _basketRepo.DeleteBasketAsync(basketId);
+            
             // 8. return order
             return order;
         }

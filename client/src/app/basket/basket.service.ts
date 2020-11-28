@@ -22,10 +22,24 @@ export class BasketService {
   shipping = 0;
   constructor(private http: HttpClient) { }
 
+  // tslint:disable-next-line: typedef
+  createPaymentIntent() {
+    // we also want to update our current basket with the content
+    // of returned basket
+    return this.http.post(this.baseUrl + 'payments/' + this.getCurrentBasketValue().id, {})
+    .pipe(map((basket: IBasket) => {
+      this.basketSource.next(basket);
+    }));
+  }
+
   setShippingPrice(deliveryMethod: IDeliveryMethod): void
   {
     this.shipping = deliveryMethod.price;
+    const basket = this.getCurrentBasketValue();
+    basket.deliveryMethodId = deliveryMethod.id;
+    basket.shippingPrice = deliveryMethod.price;
     this.calculateTotals();
+    this.setBasket(basket); // update the basket with the new deliveryId
   }
 
   // tslint:disable-next-line: typedef
@@ -35,6 +49,7 @@ export class BasketService {
       map((basket: IBasket) => { // for each basket we get from the server, we call behaviourSubject
         // basketSource's next method to emit this basket to its subscribed observers
         this.basketSource.next(basket);
+        this.shipping = basket.shippingPrice;
         this.calculateTotals();
     }));
   }
