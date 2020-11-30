@@ -8,6 +8,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class PagerComponent implements OnInit {
   @Input() totalCount: number;
   @Input() pageSize: number;
+  @Input() pageNumber: number;
   @Output() pageChanged = new EventEmitter<number>(); // 每当user click a pageNumber时，我们想把这个
   // pageNumber 发送给shopComponent(parentComponent), 让它来display这一页上的所有products
   constructor() { }

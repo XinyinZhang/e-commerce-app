@@ -13,6 +13,10 @@ export class LoadingInterceptor implements HttpInterceptor {
         if (req.method === 'POST' && req.url.includes('orders')) {
             return next.handle(req);
         }
+        // we don't want loading interceptor shows up for delete action
+        if (req.method === 'DELETE') {
+            return next.handle(req);
+        }
         if (!req.url.includes('emailexists')) {
             // 如果是checkEmailTaken case的延时，turn off the loading spinner
             return next.handle(req);

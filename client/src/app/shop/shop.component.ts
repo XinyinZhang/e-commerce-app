@@ -16,7 +16,7 @@ export class ShopComponent implements OnInit {
   products: IProduct[];
   brands: IBrand[];
   types: IType[];
-  shopParams = new ShopParams();
+  shopParams: ShopParams;
   totalCount: number; // count of the number of items after all the
   // filters have been applied（product collections中有多少个符合brand&type条件的备选product
   // name 对应display给user的名字
@@ -26,23 +26,24 @@ export class ShopComponent implements OnInit {
     {name: 'Price: Low to High', value: 'priceAsc'},
     {name: 'Price: High to Low', value: 'priceDesc'}
   ];
-  constructor(private shopService: ShopService) { }// inject the shop service
+  constructor(private shopService: ShopService) {
+    this.shopParams = this.shopService.getShopParams();
+  }
 
   ngOnInit(): void{
-    this.getProducts();
+    this.getProducts(true);
     this.getBrands();
     this.getTypes();
   }
 
-  getProducts(): void
+  getProducts(useCache = false): void
   {
     // using shopService to fetch products data
-    this.shopService.getProducts(this.shopParams)
-    .subscribe(response => { // we don't need to specify the type of response
+    this.shopService.getProducts(useCache).subscribe(response => { // we don't need to specify the type of response
            // it already know it will get back an IPagination type from the service
            this.products = response.data;
-           this.shopParams.pageNumber = response.pageIndex;
-           this.shopParams.pageSize = response.pageSize;
+          //  this.shopParams.pageNumber = response.pageIndex;
+          //  this.shopParams.pageSize = response.pageSize;
            this.totalCount = response.count;
            }, error => {
       console.log(error);
@@ -71,44 +72,55 @@ export class ShopComponent implements OnInit {
    onBrandSelected(brandId: number): void{ // called when user click a particular brand
         // it will assign the brandId of clicked item to brandIdSelected field and
         // call getProducts to return the products with specific id
-    this.shopParams.brandId = brandId;
-    this.shopParams.pageNumber = 1; // solve the bug when at page 2/3/... and select a brand
+    const params = this.shopService.getShopParams();
+    params.brandId = brandId;
+    params.pageNumber = 1; // solve the bug when at page 2/3/... and select a brand
     // everytime we select a brand, we goes to page 1 anyway
+    this.shopService.setShopParams(params);
     this.getProducts();
   }
 
   onTypeSelected(typeId: number): void{
+    const params = this.shopService.getShopParams();
     // user click type B --> call onTypeSelected(B.id)
     // --> call getProducts() to get products with typeId = B.id
-    this.shopParams.typeId = typeId;
-    this.shopParams.pageNumber = 1;
+    params.typeId = typeId;
+    params.pageNumber = 1;
+    this.shopService.setShopParams(params);
     this.getProducts();
   }
 
   // called when user click a sort option: 根据选中的sort option，return products in specific order
   onSortSelected(sort: string): void{
-    this.shopParams.sort = sort;
+    const params = this.shopService.getShopParams();
+    params.sort = sort;
+    this.shopService.setShopParams(params);
     this.getProducts();
   }
 
   // called when user click a page: goes to that page and display all the items on that page
   onPageChanged(event: any): void{
-    if (this.shopParams.pageNumber !== event){
-      this.shopParams.pageNumber = event; // the event itself should be a pageNumber
-      this.getProducts();
+    const params = this.shopService.getShopParams();
+    if (params.pageNumber !== event){
+      params.pageNumber = event; // the event itself should be a pageNumber
+      this.shopService.setShopParams(params);
+      this.getProducts(true);
     }
 
   }
 
   onSearch(): void{
-    this.shopParams.search = this.searchTerm.nativeElement.value;
-    this.shopParams.pageNumber = 1;
+    const params = this.shopService.getShopParams();
+    params.search = this.searchTerm.nativeElement.value;
+    params.pageNumber = 1;
+    this.shopService.setShopParams(params);
     this.getProducts();
   }
   // reset everthing back to unfiltered state
   onReset(): void{
     this.searchTerm.nativeElement.value = '';
     this.shopParams = new ShopParams();
+    this.shopService.setShopParams(this.shopParams);
     this.getProducts();
   }
 
