@@ -10,6 +10,8 @@ using API.Middleware;
 using API.Extensions;
 using StackExchange.Redis;
 using Infrastructure.Identity;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace API
 {
@@ -21,16 +23,8 @@ namespace API
             _config = config;
             
         }
-
-
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        //any services that we want to add to our application and we want to make
-        //available to other parts of our application, we add it inside this method
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureDevelopmentServices(IServiceCollection services)
         {
-            
-            services.AddControllers();
             //add StoreContext as a service to handle data transferring between application and DB
             services.AddDbContext<StoreContext>(x 
             => x.UseSqlite(_config.GetConnectionString("DefaultConnection")));
@@ -41,6 +35,32 @@ namespace API
                 x.UseSqlite(_config.GetConnectionString("IdentityConnection")); // also add this connection
                 // string to appsettings.Development.json
             });
+            ConfigureServices(services);
+        }
+
+         public void ConfigureProductionServices(IServiceCollection services)
+        {
+            //add StoreContext as a service to handle data transferring between application and DB
+            services.AddDbContext<StoreContext>(x 
+            => x.UseMySql(_config.GetConnectionString("DefaultConnection")));
+            // add AppIdentityDbContext to handle identity related requests
+            services.AddDbContext<AppIdentityDbContext>(x =>
+            {
+                // we create a new database to store IdentityDbContext
+                x.UseMySql(_config.GetConnectionString("IdentityConnection")); // also add this connection
+                // string to appsettings.Development.json
+            });
+            ConfigureServices(services);
+        }
+
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        //any services that we want to add to our application and we want to make
+        //available to other parts of our application, we add it inside this method
+        public void ConfigureServices(IServiceCollection services)
+        {
+            
+            services.AddControllers();
 
             services.AddSingleton<IConnectionMultiplexer>(c => {
                 var configuration = ConfigurationOptions.Parse(_config.GetConnectionString("Redis"), true);
@@ -87,7 +107,14 @@ namespace API
 
             app.UseStaticFiles(); //configure a middleware to enable static file serving
                                  //(image sending) for this pipeline
-
+            
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "Content")
+                ), RequestPath = "/content"
+            });
+            
             app.UseCors("CorsPolicy");   //configure a middleware to enable Cors policy
 
             app.UseAuthentication(); // configure a middleware to authenticate the user
@@ -98,6 +125,7 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }

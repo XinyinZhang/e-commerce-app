@@ -20,7 +20,7 @@ namespace API.Controllers
         // anybody can use our endpoint, we only want to trust things that
         // have this secret(we will get this web hook secrets when we configure
         // our endpoint inside stripe)
-        private const string WhSecret = "whsec_SRAFvzqjnE4fwmFOr5CbnmiaffBks58C";
+        private readonly string _whSecret;
         private readonly ILogger<IPaymentService> _logger;
 
         public PaymentsController(IPaymentService paymentService, 
@@ -29,7 +29,7 @@ namespace API.Controllers
         {
             _logger = logger;
             _paymentService = paymentService;
-            // _whSecret = config.GetSection("StripeSettings:WhSecret").Value;
+            _whSecret = config.GetSection("StripeSettings:WhSecret").Value;
         }
         
         [Authorize]
@@ -50,7 +50,7 @@ namespace API.Controllers
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             // confirm with whSecret that this data is from stripe and we can trust it
-            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], WhSecret);
+            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], _whSecret);
 
             PaymentIntent intent;
             Order order;

@@ -43,9 +43,10 @@ namespace API.Middleware
                  context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                  //check if in development mode -> send response
                  var response = _env.IsDevelopment()
-                    ? new ApiException((int)HttpStatusCode.InternalServerError, 
-                    ex.Message, ex.StackTrace.ToString()) //if in development
-                    : new ApiException((int)HttpStatusCode.InternalServerError); //in production
+                    ? new ApiException((int)HttpStatusCode.InternalServerError, ex.Message, 
+                    ex.StackTrace.ToString())
+                    : new ApiException((int)HttpStatusCode.InternalServerError, ex.Message,
+                    ex.StackTrace.ToString());
                     
                     //to make JsonResponse consistent with other response --> set to camelCase
                     var options = new JsonSerializerOptions{PropertyNamingPolicy = 

@@ -36,15 +36,16 @@ export class ShopComponent implements OnInit {
     this.getTypes();
   }
 
+
   getProducts(useCache = false): void
   {
+     console.log('inside getProducts() method');
     // using shopService to fetch products data
-    this.shopService.getProducts(useCache).subscribe(response => { // we don't need to specify the type of response
+     this.shopService.getProducts(useCache).subscribe(response => { // we don't need to specify the type of response
            // it already know it will get back an IPagination type from the service
            this.products = response.data;
-          //  this.shopParams.pageNumber = response.pageIndex;
-          //  this.shopParams.pageSize = response.pageSize;
            this.totalCount = response.count;
+          //  console.log(this.products);
            }, error => {
       console.log(error);
     });
@@ -95,7 +96,7 @@ export class ShopComponent implements OnInit {
     const params = this.shopService.getShopParams();
     params.sort = sort;
     this.shopService.setShopParams(params);
-    this.getProducts();
+    this.getProducts(); // cache=false
   }
 
   // called when user click a page: goes to that page and display all the items on that page

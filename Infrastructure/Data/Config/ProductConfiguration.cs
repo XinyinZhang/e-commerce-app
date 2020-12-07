@@ -11,7 +11,7 @@ namespace Infrastructure.Data.Config
         {
             builder.Property(p => p.Id).IsRequired();
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
-            builder.Property(p => p.Description).IsRequired().HasMaxLength(180);
+            builder.Property(p => p.Description).IsRequired();
            //18: total number of digits allowed, 
            //2: number of digits to the right of decimal point
             builder.Property(p => p.Price).HasColumnType("decimal(18,2)");

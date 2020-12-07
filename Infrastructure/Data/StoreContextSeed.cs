@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Core.Entities;
@@ -20,6 +21,7 @@ namespace Infrastructure.Data
         {
             try
             {
+                var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 //check if we got any productBrand in our database
                 if (!context.ProductBrands.Any())
                 {
@@ -27,7 +29,7 @@ namespace Infrastructure.Data
                     //the data into database
                     //1. read data from Json file
                     var brandsData = 
-                    File.ReadAllText("../Infrastructure/Data/SeedData/brands.json");
+                    File.ReadAllText(path + @"/Data/SeedData/brands.json");
                     //2. deserialize Json --> a list of productBrand object
                     var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsData);
                     
@@ -46,7 +48,7 @@ namespace Infrastructure.Data
                 if(!context.ProductTypes.Any())
                 {
                     var TypeData = 
-                    File.ReadAllText("../Infrastructure/Data/SeedData/types.json");
+                    File.ReadAllText(path + @"/Data/SeedData/types.json");
                     var types = JsonSerializer.Deserialize<List<ProductType>>(TypeData);
                     foreach(var item in types)
                     {
@@ -58,7 +60,7 @@ namespace Infrastructure.Data
                 if(!context.Products.Any())
                 {
                     var ProductData = 
-                    File.ReadAllText("../Infrastructure/Data/SeedData/products.json");
+                    File.ReadAllText(path + @"/Data/SeedData/products.json");
                     var products = JsonSerializer.Deserialize<List<Product>>(ProductData);
                     foreach(var item in products)
                     {
@@ -70,7 +72,7 @@ namespace Infrastructure.Data
                 if (!context.DeliveryMethods.Any())
                 {
                     var dmData =
-                        File.ReadAllText("../Infrastructure/Data/SeedData/delivery.json");
+                        File.ReadAllText(path + @"/Data/SeedData/delivery.json");
 
                     var methods = JsonSerializer.Deserialize<List<DeliveryMethod>>(dmData);
 
