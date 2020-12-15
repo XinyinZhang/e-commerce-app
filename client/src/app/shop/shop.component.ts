@@ -71,14 +71,14 @@ export class ShopComponent implements OnInit {
   }
 
    onBrandSelected(brandId: number): void{ // called when user click a particular brand
-        // it will assign the brandId of clicked item to brandIdSelected field and
+        // it will assign the brandId of clicked item to shopService's ShopParams field and
         // call getProducts to return the products with specific id
     const params = this.shopService.getShopParams();
     params.brandId = brandId;
     params.pageNumber = 1; // solve the bug when at page 2/3/... and select a brand
     // everytime we select a brand, we goes to page 1 anyway
-    this.shopService.setShopParams(params);
-    this.getProducts();
+    this.shopService.setShopParams(params); // everytime click on a Brand, update shopParams in shopService
+    this.getProducts(); // useCache = false
   }
 
   onTypeSelected(typeId: number): void{
@@ -88,7 +88,7 @@ export class ShopComponent implements OnInit {
     params.typeId = typeId;
     params.pageNumber = 1;
     this.shopService.setShopParams(params);
-    this.getProducts();
+    this.getProducts(); // useCache = false
   }
 
   // called when user click a sort option: 根据选中的sort option，return products in specific order
